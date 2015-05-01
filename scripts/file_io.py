@@ -5,7 +5,7 @@
 import os
 
 
-class FileWriter():
+class FileIO():
     def __init__(self, root_dir_path, logger):
         self._logger = logger
         self._root_dir = root_dir_path
