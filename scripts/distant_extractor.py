@@ -460,7 +460,7 @@ class DistantExtractor():
             r.close()
 
         self._logger.info('get tp')
-        self._file_io.rewrite_file2(
+        self._file_io.rewrite_file(
             '%s/diff.txt' % self._output,
             '%s/tp.txt' % self._output,
             spl_diff
@@ -491,21 +491,21 @@ class DistantExtractor():
             r.close()
 
         self._logger.info('get fp words')
-        self._file_io.rewrite_file2(
+        self._file_io.rewrite_file(
             '%s/fp.txt' % self._output,
             '%s/fp_words.txt' % self._output,
             get_word_from_diff
         )
 
         self._logger.info('get fn words')
-        self._file_io.rewrite_file2(
+        self._file_io.rewrite_file(
             '%s/fn.txt' % self._output,
             '%s/fn_words.txt' % self._output,
             get_word_from_diff
         )
 
         self._logger.info('get tp words')
-        self._file_io.rewrite_file2(
+        self._file_io.rewrite_file(
             '%s/tp.txt' % self._output,
             '%s/tp_words.txt' % self._output,
             get_word_from_diff
