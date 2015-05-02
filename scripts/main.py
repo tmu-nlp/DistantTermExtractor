@@ -38,10 +38,15 @@ class Main():
     wikipedia周りは別にやらせる
     """
 
-    def __init__(self, root_cat, depth, log_file, output_dir):
+    def __init__(self, args):
         # init instance
         self._distant_ex = DistantExtractor(
-            root_cat, depth, log_file, output_dir)
+            args['--category'],
+            args['--depth'],
+            args['--log'],
+            args['--output'],
+            args['root']
+        )
 
     def extract(self):
     
@@ -56,7 +61,7 @@ class Main():
         # cleaning
 #        self._distant_ex.cleaning()
         # morpheme analysis
-        self._distant_ex.morpheme_tagging()        
+        self._distant_ex.morpheme_tagging()
         # fix form
         # add feature
         # labeling
@@ -97,7 +102,7 @@ def main():
     args = get_args(docopt(__doc__, version=__version__))
     
     # extract
-    main_process = Main(args['--category'], args['--depth'], args['--log'], args['--output'])  # noqa
+    main_process = Main(args)
     main_process.extract()
 
 

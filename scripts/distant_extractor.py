@@ -16,7 +16,7 @@ class DistantExtractor():
     wikipedia周りは別にやらせる
     """
 
-    def __init__(self, root_cat, depth, log_file, output_dir):
+    def __init__(self, root_cat, depth, log_file, output_dir, root_dir):
         # init logger
         self._logger = mylogger.get_logger(
             DistantExtractor.__name__,
@@ -42,7 +42,7 @@ class DistantExtractor():
         # init instance
         self._file_io = FileIO(output_dir, io_logger)
         self._wiki_extractor = WikipediaExtractor(wiki_logger, self._file_io)
-        self._morpheme_tagger = MorphemeTagger(morph_logger)
+        self._morpheme_tagger = MorphemeTagger(morph_logger, root_dir)
         
         # init args
         self._root_cat = root_cat
