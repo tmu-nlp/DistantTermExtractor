@@ -357,7 +357,8 @@ class DistantExtractor():
         cmd = 'crf_test -m %s %s> %s' % (self._modelfile, self._all_labeledfile, self._decodefile)
         subprocess.call(cmd, shell=True)
 
-    def fp_extract(self):
+    def extract_fp(self):
+        self._file_io.mkdir(self._output)
         def diff(fw, fr):
             w = open(fw, 'w')
             r = open(fr)
