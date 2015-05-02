@@ -63,13 +63,13 @@ class DistantExtractor():
         self._mecab_dir = 'mecab_corpora'
         self._labeled_dir = 'labeled_corpora'
         self._train_dir = 'train_corpora'
+        self._output = 'output'
         self._temp_dir = 'temp'
         self._templatefile = '%s/templates/template' % root_dir
         self._trainfile = '%s/train.txt' % output_dir
         self._decodefile = '%s/decode.txt' % output_dir
         self._modelfile = '%s/model' % output_dir
         self._all_labeledfile = '%s/all_labeled.txt' % output_dir
-
 
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
@@ -350,13 +350,165 @@ class DistantExtractor():
         subprocess.call(cmd, shell=True)
 
     def decode(self):
-        self._logger.info('decode by crf')
+        self._logger.info('create all labeled file')
         self._file_io.cat(self._labeled_dir, self._all_labeledfile)
-        cmd = 'crf_test -m %s > %s' % (self._modelfile, self._decodefile)
+        
+        self._logger.info('decode by crf')
+        cmd = 'crf_test -m %s %s> %s' % (self._modelfile, self._all_labeledfile, self._decodefile)
         subprocess.call(cmd, shell=True)
 
     def fp_extract(self):
-        pass
+        def diff(fw, fr):
+            w = open(fw, 'w')
+            r = open(fr)
+            phrase = str()
+            gBIflag = False
+            sBIflag = False
+            catchFlag = False
+            
+            for line in r:
+                if line.strip() == "":
+                    phrase = str()
+                    continue
+                sys = line.strip().split()[-1]
+                gold = line.strip().split()[-2]
+                
+                if gold != "O":
+                    gBIflag = True
+                if sys != "O":
+                    sBIflag = True
+                if gold == "O":
+                    gBIflag = False
+                if sys == "O":
+                    sBIflag = False
+
+                if gold != sys:
+                    catchFlag = True
+
+                if not gBIflag and not sBIflag:
+                    if catchFlag:
+                        w.write('%s\n' % phrase)
+                        catchFlag = False
+                    phrase = str()
+                    continue
+                phrase += line
+            w.close()
+            r.close()
+        
+        self._logger.info('decode diff')
+        self._file_io.rewrite_file(
+            self._decodefile,
+            '%s/diff.txt' % self._output,
+            diff
+        )
+
+        def spl_diff(wf1, wf2, rf):
+            r = open(rf)
+            wfp = open(wf1, 'w')
+            wfn = open(wf2, 'w')
+            phrase = str()
+            for line in r:
+                if line.strip() == "":
+                    try:
+                        if "fp" in map(lambda l: "fp" if l.split()[-2]=="O" else "x", phrase.strip().split("\n")):
+                            wfp.write(phrase+"\n")
+                        else:
+                            wfn.write(phrase+"\n")
+                    except IndexError:
+                        self._logger("IndexError: pharase>"+phrase+"<")
+                    phrase = str()
+                    continue
+                phrase += line
+            r.close()
+            wfp.close()
+            wfn.close()
+
+        self._logger.info('split diff to fp and fn')
+        self._file_io.rewrite_file2(
+            '%s/diff.txt' % self._output,
+            '%s/fp.txt' % self._output,
+            '%s/fn.txt' % self._output,
+            spl_diff
+        )
+
+        def get_tp(fw, fr):
+            w = open(fw, 'w')
+            r = open(fr)
+            phrase=str()
+            Bflag = False
+            for line in r:
+                if line.strip()=="":
+                    continue
+                gol = line.strip().split()[-2]
+                sys = line.strip().split()[-1]
+                
+                if gol[0] == "B" and sys[0] == "B" and not Bflag:
+                    Bflag = True
+                    phrase+=line
+                elif gol[0] == "I" and sys[0] == "I" and Bflag:
+                    phrase+=line
+                elif gol[0] == "B" and sys[0] == "B":
+                    w.write('%s\n' % phrase)
+                    phrase = line
+                else:
+                    Bflag = False
+                    if phrase:
+                        w.write('%s\n' % phrase)
+                        phrase=str()
+            w.close()
+            r.close()
+
+        self._logger.info('get tp')
+        self._file_io.rewrite_file2(
+            '%s/diff.txt' % self._output,
+            '%s/tp.txt' % self._output,
+            spl_diff
+        )
+
+        def get_word_from_diff(fw, fr):
+            w = open(fw, 'w')
+            r = open(fr)
+            word = list()
+            l = list()
+            for line in r:
+                if line.strip() == "":
+                    l.append(("///".join(word), cl))
+                    word = list()
+                    continue
+                if line.strip().split()[-1][0]=="B":
+                    cl = line.strip().split()[-1][2:]
+                    word.append(line.strip().split()[0])
+                elif line.strip().split()[-1]=="O" and line.strip().split()[-2][0]=="B":
+                    word.append(line.strip().split()[0])
+                    cl = line.strip().split()[-2][2:]
+                else:
+                    word.append(line.strip().split()[0])
+            
+            for item in sorted(set(l), key=lambda x:x[1]):
+                w.write('%s %s %s' % (item[0].replace("///",""), item[1], "\t"+item[0]))
+            w.close()
+            r.close()
+
+        self._logger.info('get fp words')
+        self._file_io.rewrite_file2(
+            '%s/fp.txt' % self._output,
+            '%s/fp_words.txt' % self._output,
+            get_word_from_diff
+        )
+
+        self._logger.info('get fn words')
+        self._file_io.rewrite_file2(
+            '%s/fn.txt' % self._output,
+            '%s/fn_words.txt' % self._output,
+            get_word_from_diff
+        )
+
+        self._logger.info('get tp words')
+        self._file_io.rewrite_file2(
+            '%s/tp.txt' % self._output,
+            '%s/tp_words.txt' % self._output,
+            get_word_from_diff
+        )
 
     def filtering(self):
         pass
