@@ -64,10 +64,10 @@ class DistantExtractor():
         self._labeled_dir = 'labeled_corpora'
         self._train_dir = 'train_corpora'
         self._temp_dir = 'temp'
-        self._templatefile = '%s/template/template' % root_dir
+        self._templatefile = '%s/templates/template' % root_dir
         self._trainfile = '%s/train.txt' % output_dir
         self._modelfile = '%s/model' % output_dir
-
+        self._output_dir = output_dir
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
         self._logger.info('depth 0')
@@ -334,8 +334,7 @@ class DistantExtractor():
             self._train_dir,
             remove_only_o
         )
-        cmd1 = 'cat %s/* > %s' % (self._train_dir, self._trainfile)
-        subprocess.call(cmd1, shell=True)
+        self._file_io.cat(self._train_dir, self._output_dir, self._trainfile)
 
         # train
         self._logger.info('train by crf')
