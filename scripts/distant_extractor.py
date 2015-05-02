@@ -1,5 +1,6 @@
 # coding:utf-8
 
+import re
 import mylogger
 from file_io import FileIO
 from wikipedia_extractor import WikipediaExtractor
@@ -147,10 +148,63 @@ class DistantExtractor():
         )
         self._file_io.remove_dir(self._temp_dir)
 
-    def labeling(self):
-        pass
-
     def add_feature(self):
+        def is_katakana(ustr):
+            re_kana = re.compile(u'([ァ-ヶー]|[ｱ-ﾞ])+$')
+            if re_kana.search(ustr) is not None:
+                return True
+
+        def is_alpha(ustr):
+            re_alpha = re.compile(u'([a-z]|[A-Z]|[Ａ-Ｚ]|[ａ-ｚ])+$')
+            if re_alpha.search(ustr) is not None:
+                return True
+
+        def add_feat(wf, rf):
+            w = open(wf, 'w')
+            r = open(rf)
+            for line in r:
+                if line.strip() == '':
+                    w.write('\n')
+                    continue
+                lsplit = line.strip().split(' ')
+                word = unicode(lsplit[0], 'utf-8')
+
+                # add tail 4 characters
+                lsplit.insert(1, word[-4:].encode('utf8'))
+
+                # add tail 3 characters
+                lsplit.insert(1, word[-3:].encode('utf8'))
+
+                # add tail 2 characters
+                lsplit.insert(1, word[-2:].encode('utf8'))
+
+                # add head 4 characters
+                lsplit.insert(1, word[:4].encode('utf8'))
+
+                # add head 3 characters
+                lsplit.insert(1, word[:3].encode('utf8'))
+
+                # add head 2 characters
+                lsplit.insert(1, word[:2].encode('utf8'))
+
+                # add katakana or alphabet
+                if is_katakana(word):
+                    lsplit.insert(1, 'katakana')
+                elif is_alpha(word):
+                    lsplit.insert(1, 'alpha')
+                else:
+                    lsplit.insert(1, 'Other')
+
+                w.write('%s\n' % ' '.join(lsplit))
+
+        self._logger.info('add feature')
+        self._file_io.rewrite_files(
+            self._mecab_dir,
+            self._temp_dir,
+            add_feat
+        )
+
+    def labeling(self):
         pass
 
     def decoding(self):
