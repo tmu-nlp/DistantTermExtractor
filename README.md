@@ -40,7 +40,8 @@ Option:
 * unidic-mecab
 
 docoptはpipで，CRF++は[サイト][CRF++]から，unidic-mecabも[サイト][unidic]から  
-unidic-mecabはbinバージョンをダウンロードして，中身のdicrc以外をリポジトリのmy_unidicにコピーしてください．  
+unidic-mecabはbinバージョンをダウンロードしてください．  
+そして，展開した中身から`dicrc`**以外**をリポジトリのmy_unidicにコピーしてください．  
 
 [CRF++]: http://taku910.github.io/crfpp/
 [unidic]: http://sourceforge.jp/projects/unidic/
