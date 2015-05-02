@@ -54,6 +54,7 @@ class DistantExtractor():
         self._seed_dir = 'seeds'
         self._unlabeled_dir = 'unlabeled_corpora'
         self._cleaned_dir = 'cleaned_corpora'
+        self._mecab_dir = 'mecab_corpora'
 
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
@@ -94,16 +95,20 @@ class DistantExtractor():
         3. 関連項目が以降は無視
         """
         def clean(wf, rf):
-            for line in rf:
+            w = open(wf, 'w')
+            r = open(rf)
+            for line in r:
                 if line.strip() == '':
                     continue
                 if line.startswith('関連項目'):
-                    return
+                    break
                 spl = line.strip().replace('。', '。\n').split('\n')
                 for l in spl:
                     if l == '':
                         continue
-                    wf.write('%s\n' % l)
+                    w.write('%s\n' % l)
+            w.close()
+            r.close()
             return
 
         self._logger.info('cleaning')
@@ -114,16 +119,12 @@ class DistantExtractor():
         )
 
     def morpheme_tagging(self):
-        
-        pass
-    
-    def pre_process(self):
-        # 文分割
-        # mecab
-        # mecab出力の調整
-        # 素性追加
-        # ラベリング
-        pass
+        self._logger.info('morpheme tagging')
+        self._file_io.rewrite_files(
+            self._cleaned_dir,
+            self._mecab_dir,
+            self._morpheme_tagger.parse
+        )
 
     def labeling(self):
         pass
