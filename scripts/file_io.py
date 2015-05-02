@@ -42,6 +42,17 @@ class FileIO():
         self._logger.info('writing to %s/%s' % (path, file_name))
         print >>open('%s/%s' % (path, file_name), 'w'), string
 
+    def rewrite_file(self, readfile, writefile, rewrite_func):
+        rpath = self._get_path(readfile)
+        wpath = self._get_path(writefile)
+        rewrite_func(wpath, rpath)
+    
+    def rewrite_file2(self, readfile, writefile1, writefile2, rewrite_func):
+        rpath = self._get_path(readfile)
+        wpath1 = self._get_path(writefile1)
+        wpath2 = self._get_path(writefile2)
+        rewrite_func(wpath1, wpath2, rpath)
+
     def rewrite_files(self, read_rpath, write_rpath, rewrite_func):
         u"""
         ディレクトリ内のファイルを書き換えて別のディレクトリに出力する.
