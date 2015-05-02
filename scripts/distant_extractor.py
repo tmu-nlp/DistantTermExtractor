@@ -48,6 +48,10 @@ class DistantExtractor():
         # init args
         self._root_cat = root_cat
         self._limit_depth = depth
+        #TODO 後々は複数クラスのシードを持てるようにする
+        # name をkey, seeds(list)をvalueなdictにする
+        # ラベリングのところはそうなってる
+        self._seed_name = 'Car'
         self._seeds = list()
         self._categories = [self._root_cat]
 
@@ -56,6 +60,7 @@ class DistantExtractor():
         self._unlabeled_dir = 'unlabeled_corpora'
         self._cleaned_dir = 'cleaned_corpora'
         self._mecab_dir = 'mecab_corpora'
+        self._labeled_dir = 'labeled_corpora'
         self._temp_dir = 'temp'
 
     def extract_seed(self):
@@ -141,6 +146,9 @@ class DistantExtractor():
                 spll = spl[1].split('-')
                 spll += ['*'] * 3
                 w.write('%s %s %s %s\n' % (spl[0], spll[0], spll[1], spll[2]))
+            w.close()
+            r.close()
+
         self._file_io.rewrite_files(
             self._temp_dir,
             self._mecab_dir,
@@ -196,6 +204,8 @@ class DistantExtractor():
                     lsplit.insert(1, 'Other')
 
                 w.write('%s\n' % ' '.join(lsplit))
+            w.close()
+            r.close()
 
         self._logger.info('add feature')
         self._file_io.rewrite_files(
@@ -205,7 +215,96 @@ class DistantExtractor():
         )
 
     def labeling(self):
-        pass
+        class_dict = dict()
+        class_dict[self._seed_name] = self._seeds
+
+        def sent2label(usent):
+            # キーワードをB-label\tI-label...の形にする関数
+            def word2label(uword, label):
+                result = "".join(map(lambda char: u"I-" + label + u"\t", uword))
+                result = u"B" + result[1:]
+                return result
+            
+            # 辞書にマッチするキーワードがあればB-label I-labelのかたちに置き換える
+            for clas in class_dict.keys():
+                # 例えばエンジンイモビライザーシステムがあるときに、イモビライザーで先にマッチさせるとエンジンBIIIIIIシステムになってしまう
+                # ので、文字長が長いワードから順にマッチさせるパターンを作る
+                patterns = map(lambda word: re.compile(unicode(word, "utf8")), sorted(class_dict[clas], key=lambda x: -len(x)))
+                # 置き換える
+                usent = reduce(lambda s, pattern: pattern.sub(lambda m: word2label(m.group(), clas), s), [usent] + patterns)
+            
+            # B-label I-labelにマッチしない文字はすべて"O"に置き換える
+            npat = u"|".join(u"B-%s|I-%s" % (unicode(c, "utf8"), unicode(c, "utf8")) for c in class_dict.keys())
+            not_pattern = re.compile(npat + u"|\t")
+
+            def replace_O(usent):
+                return "".join(char if i in replace_O.l else u"O\t" for i, char in enumerate(usent)).strip()
+            replace_O.l = list()
+            for match in not_pattern.finditer(usent):
+                replace_O.l += range(match.span()[0], match.span()[1])
+            usent = replace_O(usent)
+          
+            return usent.split("\t")
+
+        def add_label(buf_sent, labels):
+            sufs = [mout.split()[0].decode("utf8") for mout in buf_sent]
+            
+            last_spl = 0
+            spl_labels = list()
+            for suf in sufs:
+                spl_labels.append(labels[last_spl:last_spl + len(suf)])
+                last_spl += len(suf)
+            
+            for i, spl_label in enumerate(spl_labels):
+                I_flag = ""
+                B_flag = False
+                for clas in class_dict.keys():
+                    if u"B-" + unicode(clas, "utf8") in spl_label and not B_flag:
+                        buf_sent[i] += " B-" + clas
+                        B_flag = True
+                    if u"I-" + unicode(clas, "utf8") in spl_label:
+                        I_flag = clas
+                if not B_flag and I_flag:
+                    buf_sent[i] += " I-" + I_flag
+                elif not B_flag:
+                    buf_sent[i] += " O"
+            
+            return buf_sent
+
+        def sent_labeling(buf_sent):
+            # surfaceだけつなげて1文を作る
+            sent = "".join(mout.split()[0] for mout in buf_sent)
+            # 1文の文字にラベルを振る
+            labels = sent2label(unicode(sent, "utf-8"))
+            # mecabの形式にラベルを振る
+            buf_sent = add_label(buf_sent, labels)
+            
+            return buf_sent
+
+        def label(wf, rf):
+            w = open(wf, 'w')
+            r = open(rf)
+            
+            buffer_sent = list()
+            sent_count = 0
+
+            for line in r:
+                line = line.strip()
+                if line == "":
+                    sent_count += 1
+                    for mecab_out_tok in sent_labeling(buffer_sent):
+                        w.write('%s\n' % mecab_out_tok)
+                    w.write('\n')
+                    buffer_sent = list() 
+                else:
+                    buffer_sent.append(line.strip())
+        
+        self._logger.info('add feature')
+        self._file_io.rewrite_files(
+            self._temp_dir,
+            self._labeled_dir,
+            label
+        )
 
     def decoding(self):
         pass
