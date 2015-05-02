@@ -3,3 +3,7 @@
 *.log
 data
 *.asta
+my_unidic/*.bin
+my_unidic/*.def
+my_unidic/*.dic
+
