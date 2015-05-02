@@ -5,6 +5,8 @@
 import os
 import glob
 import shutil
+import subprocess
+
 
 class FileIO():
     def __init__(self, root_dir_path, logger):
@@ -16,6 +18,12 @@ class FileIO():
 
     def remove_dir(self, dir_rpath):
         shutil.rmtree(self._get_path(dir_rpath))
+
+    def cat(self, indir, outdir, filename):
+        i = self._get_path(indir)
+        o = self._get_path(outdir)
+        cmd = 'cat %s/* > %s/%s' % (i, o, filename)
+        subprocess.call(cmd, shell=True)
 
     def write_list(self, l, dir_rpath, file_name):
         path = self._get_path(dir_rpath)
