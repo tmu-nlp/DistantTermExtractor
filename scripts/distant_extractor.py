@@ -334,17 +334,17 @@ class DistantExtractor():
             self._train_dir,
             remove_only_o
         )
-        self._file_io.cat(self._train_dir, self._output_dir, self._trainfile)
+        self._file_io.cat(self._train_dir, self._trainfile)
 
         # train
         self._logger.info('train by crf')
         
         lf = mylogger.get_filename(self._logger)
         if lf is None:
-            cmd2 = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s' % (self._templatefile, self._trainfile, self._modelfile)
+            cmd = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s' % (self._templatefile, self._trainfile, self._modelfile)
         else:
-            cmd2 = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s >> %s' % (self._templatefile, self._trainfile, self._modelfile, lf)
-        subprocess.call(cmd2, shell=True)
+            cmd = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s >> %s' % (self._templatefile, self._trainfile, self._modelfile, lf)
+        subprocess.call(cmd, shell=True)
 
     def decoding(self):
         pass

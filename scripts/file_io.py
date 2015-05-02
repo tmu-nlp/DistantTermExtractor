@@ -19,10 +19,9 @@ class FileIO():
     def remove_dir(self, dir_rpath):
         shutil.rmtree(self._get_path(dir_rpath))
 
-    def cat(self, indir, outdir, filename):
+    def cat(self, indir, filename):
         i = self._get_path(indir)
-        o = self._get_path(outdir)
-        cmd = 'cat %s/* > %s/%s' % (i, o, filename)
+        cmd = 'cat %s/* > %s' % (i, filename)
         subprocess.call(cmd, shell=True)
 
     def write_list(self, l, dir_rpath, file_name):
