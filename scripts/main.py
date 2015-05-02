@@ -24,10 +24,7 @@ Option:
 
 from docopt import docopt
 import os
-import mylogger
-from file_io import FileIO
 from distant_extractor import DistantExtractor
-from wikipedia_extractor import WikipediaExtractor
 
 __author__ = "ryosukee"
 __version__ = "0.0.0"
@@ -42,29 +39,9 @@ class Main():
     """
 
     def __init__(self, root_cat, depth, log_file, output_dir):
-        
-        # init logger
-        de_logger = mylogger.get_logger(
-            DistantExtractor.__name__,
-            log_file,
-            mylogger.DEBUG
-        )
-        io_logger = mylogger.get_logger(
-            FileIO.__name__,
-            log_file,
-            mylogger.DEBUG
-        )
-        wiki_logger = mylogger.get_logger(
-            WikipediaExtractor.__name__,
-            log_file,
-            mylogger.DEBUG
-        )
-
         # init instance
-        self._file_io = FileIO(output_dir, io_logger)
-        self._wiki_ex = WikipediaExtractor(wiki_logger, self._file_io)
         self._distant_ex = DistantExtractor(
-            root_cat, depth, de_logger, self._file_io, self._wiki_ex)
+            root_cat, depth, log_file, output_dir)
 
     def extract(self):
     
@@ -79,6 +56,7 @@ class Main():
         # cleaning
         self._distant_ex.cleaning()
         # morpheme analysis
+        
         # fix form
         # add feature
         # labeling
@@ -116,6 +94,7 @@ def get_args(dopt):
 def main():
     # init args
     args = get_args(docopt(__doc__, version=__version__))
+    
     # extract
     main_process = Main(args['--category'], args['--depth'], args['--log'], args['--output'])  # noqa
     main_process.extract()
