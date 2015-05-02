@@ -1,6 +1,7 @@
 # coding:utf-8
 
 import re
+import subprocess
 import mylogger
 from file_io import FileIO
 from wikipedia_extractor import WikipediaExtractor
@@ -55,13 +56,17 @@ class DistantExtractor():
         self._seeds = list()
         self._categories = [self._root_cat]
 
-        # init dir name
+        # init name
         self._seed_dir = 'seeds'
         self._unlabeled_dir = 'unlabeled_corpora'
         self._cleaned_dir = 'cleaned_corpora'
         self._mecab_dir = 'mecab_corpora'
         self._labeled_dir = 'labeled_corpora'
+        self._train_dir = 'train_corpora'
         self._temp_dir = 'temp'
+        self._templatefile = '%s/template/template' % root_dir
+        self._trainfile = '%s/train.txt' % output_dir
+        self._modelfile = '%s/model' % output_dir
 
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
@@ -268,7 +273,7 @@ class DistantExtractor():
                     buf_sent[i] += " I-" + I_flag
                 elif not B_flag:
                     buf_sent[i] += " O"
-            
+
             return buf_sent
 
         def sent_labeling(buf_sent):
@@ -278,13 +283,13 @@ class DistantExtractor():
             labels = sent2label(unicode(sent, "utf-8"))
             # mecabの形式にラベルを振る
             buf_sent = add_label(buf_sent, labels)
-            
+
             return buf_sent
 
         def label(wf, rf):
             w = open(wf, 'w')
             r = open(rf)
-            
+
             buffer_sent = list()
             sent_count = 0
 
@@ -295,16 +300,52 @@ class DistantExtractor():
                     for mecab_out_tok in sent_labeling(buffer_sent):
                         w.write('%s\n' % mecab_out_tok)
                     w.write('\n')
-                    buffer_sent = list() 
+                    buffer_sent = list()
                 else:
                     buffer_sent.append(line.strip())
-        
+
         self._logger.info('add feature')
         self._file_io.rewrite_files(
             self._temp_dir,
             self._labeled_dir,
             label
         )
+
+    def train(self):
+        # create train data
+        def remove_only_o(wf, rf):
+            w = open(wf, 'w')
+            r = open(rf)
+            flag = False
+            sent = str()
+            for line in r:
+                sent += line
+                if line.strip() != "" and line.strip().split()[-1] != "O":
+                    flag = True
+                if line.strip() == "":
+                    if flag:
+                        w.write(sent)
+                    flag = False
+                    sent = str()
+
+        self._logger.info('create train data')
+        self._file_io.rewrite_files(
+            self._labeled_dir,
+            self._train_dir,
+            remove_only_o
+        )
+        cmd1 = 'cat %s/* > %s' % (self._train_dir, self._trainfile)
+        subprocess.call(cmd1, shell=True)
+
+        # train
+        self._logger.info('train by crf')
+        
+        lf = mylogger.get_filename(self._logger)
+        if lf is None:
+            cmd2 = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s' % (self._templatefile, self._trainfile, self._modelfile)
+        else:
+            cmd2 = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s >> %s' % (self._templatefile, self._trainfile, self._modelfile, lf)
+        subprocess.call(cmd2, shell=True)
 
     def decoding(self):
         pass
