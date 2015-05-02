@@ -1,6 +1,6 @@
 # DistantTermExtractor
 
-# 使い方
+## 使い方
 `python scripts/main.py -h`  
 例  
 `python scripts/main.py -c 自動車工学 -l log.txt`  
@@ -10,7 +10,7 @@
 （指定しない場合は`./data`ディレクトリが作成されます．）  
 最終的に獲得した単語は`./data/output/fp_words.txt`に出力されます．  
 
-# 必要なツール
+## 必要なツール
 * docopt
 * CRF++ 
 * mecab
