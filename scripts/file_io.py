@@ -42,13 +42,16 @@ class FileIO():
         rpath = self._get_path(read_rpath)
         wpath = self._get_path(write_rpath)
 
+        self._logger.info('cleaning %s to %s' % (rpath, wpath))
+
         if not os.path.isdir(wpath):
             self._logger.info('make dir : %s' % wpath)
             os.makedirs(wpath)
-
-        for f in self._pyls(rpath, False, False):
+        for f in self._pyls('%s/*' % rpath, False, False):
             wf = open('%s/%s' % (wpath, f), 'w')
             rf = open('%s/%s' % (rpath, f))
+
+            self._logger.info('cleaning %s/%s to %s/%s' % (rpath, f, wpath, f))
             rewrite_func(wf, rf)
             wf.close()
             rf.close()
