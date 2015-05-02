@@ -52,6 +52,12 @@ class FileIO():
         wpath1 = self._get_path(writefile1)
         wpath2 = self._get_path(writefile2)
         rewrite_func(wpath1, wpath2, rpath)
+    
+    def mkdir(self, rpath):
+        rpath = self._get_path(rpath)
+        if not os.path.isdir(rpath):
+            self._logger.info('make dir : %s' % rpath)
+            os.makedirs(rpath)
 
     def rewrite_files(self, read_rpath, write_rpath, rewrite_func):
         u"""
