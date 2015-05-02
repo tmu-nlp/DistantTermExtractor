@@ -48,15 +48,15 @@ class Main():
         # TODO: if you get from wikipedia
         # このへんはオプション引数とのかねあいも考える
         # get seed
-        self._distant_ex.extract_seed()
+#        self._distant_ex.extract_seed()
         # get unlabeled data
-        self._distant_ex.extract_unlabeled_data()
+#        self._distant_ex.extract_unlabeled_data()
 
         # pre_prosess
         # cleaning
-        self._distant_ex.cleaning()
+#        self._distant_ex.cleaning()
         # morpheme analysis
-        
+        self._distant_ex.morpheme_tagging()        
         # fix form
         # add feature
         # labeling
@@ -71,6 +71,7 @@ class Main():
 
 def get_args(dopt):
     args = dict()
+    args['root'] = '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[:-1])  # noqa
     for key in dopt:
         x = dopt[key]
         if dopt[key] is None:
@@ -86,7 +87,7 @@ def get_args(dopt):
 
     if args['--output'] == 'root/data':
         # repository root dir
-        args['--output'] = '%s/data' % '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[:-1])  # noqa
+        args['--output'] = '%s/data' % args['root']
     
     return args
 
