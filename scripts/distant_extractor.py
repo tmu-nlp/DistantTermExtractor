@@ -35,8 +35,7 @@ class DistantExtractor():
         for cat in self._categories:
             new_seeds, new_cats = self._wiki_extractor.get_subcategories_titles(cat)  # noqa
             self._logger.info('%d seeds from category %s' % (len(new_seeds), cat))  # noqa
-            if '/' in new_seeds:
-                new_seeds = new_seeds.replace('/', ':')
+            new_seeds = map(lambda s: s.replace('/', ':'), new_seeds)
             self._seeds += new_seeds
 
             # add subcategories to extract
@@ -47,7 +46,6 @@ class DistantExtractor():
                 self._logger.info('depth %d' % current_depth)
         # output
         self._file_io.write_list(self._seeds, self._seed_dir, 'seed')
-
 
     def extract_unlabeled_data(self):
         self._logger.info('\n------extract unlabeled data--------')
@@ -83,6 +81,10 @@ class DistantExtractor():
             clean
         )
 
+    def morpheme_tagging(self):
+        
+        pass
+    
     def pre_process(self):
         # 文分割
         # mecab
