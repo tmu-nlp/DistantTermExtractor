@@ -416,7 +416,7 @@ class DistantExtractor():
                         else:
                             wfn.write(phrase+"\n")
                     except IndexError:
-                        self._logger("IndexError: pharase>"+phrase+"<")
+                        self._logger.info("IndexError: pharase>"+phrase+"<")
                     phrase = str()
                     continue
                 phrase += line
