@@ -76,11 +76,14 @@ class Main():
         self._distant_ex.extract_unlabeled_data()
 
         # pre_prosess
-            # cleaning
-            # morpheme analysis
-            # fix form
-            # add feature
-            # labeling
+        # cleaning
+        self._distant_ex.cleaning()
+        # morpheme analysis
+        # fix form
+        # add feature
+        # labeling
+        
+        
         # learn crfpp
         # decode
         # extract fp
@@ -103,7 +106,7 @@ def get_args(dopt):
         else:
             args[key] = x
 
-    if args['--ouput'] == 'root/data':
+    if args['--output'] == 'root/data':
         # repository root dir
         args['--output'] = '%s/data' % '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[:-1])  # noqa
     
