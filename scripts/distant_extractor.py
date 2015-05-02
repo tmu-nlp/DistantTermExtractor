@@ -55,6 +55,7 @@ class DistantExtractor():
         self._unlabeled_dir = 'unlabeled_corpora'
         self._cleaned_dir = 'cleaned_corpora'
         self._mecab_dir = 'mecab_corpora'
+        self._temp_dir = 'temp'
 
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
@@ -122,16 +123,35 @@ class DistantExtractor():
         self._logger.info('morpheme tagging')
         self._file_io.rewrite_files(
             self._cleaned_dir,
-            self._mecab_dir,
+            self._temp_dir,
             self._morpheme_tagger.parse
         )
 
+        self._logger.info('normalize morpheme taged format')
+
+        def norm(wf, rf):
+            w = open(wf, 'w')
+            r = open(rf)
+            for line in r:
+                if line.strip() == '':
+                    w.write('\n')
+                    continue
+                spl = line.strip().split()
+                spll = spl[1].split('-')
+                spll += ['*'] * 3
+                w.write('%s %s %s %s\n' % (spl[0], spll[0], spll[1], spll[2]))
+        self._file_io.rewrite_files(
+            self._temp_dir,
+            self._mecab_dir,
+            norm
+        )
+        self._file_io.remove_dir(self._temp_dir)
+
     def labeling(self):
         pass
-    
+
     def add_feature(self):
         pass
-    
 
     def decoding(self):
         pass
