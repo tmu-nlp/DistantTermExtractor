@@ -49,7 +49,7 @@ class Main():
         )
 
     def extract(self):
-    
+
         # TODO: if you get from wikipedia
         # このへんはオプション引数とのかねあいも考える
         # get seed
@@ -59,15 +59,16 @@ class Main():
 
         # pre_prosess
         # cleaning
-        self._distant_ex.cleaning()
-        # morpheme analysis
-        self._distant_ex.morpheme_tagging()
-        # add feature
-        self._distant_ex.add_feature()
-        # labeling
-        self._distant_ex.labeling()        
-        
-        # learn crfpp
+#        self._distant_ex.cleaning()
+#        # morpheme analysis
+#        self._distant_ex.morpheme_tagging()
+#        # add feature
+#        self._distant_ex.add_feature()
+#        # labeling
+#        self._distant_ex.labeling()
+ 
+        # train by crfpp
+        self._distant_ex.train()
         # decode
         # extract fp
         # filtering
