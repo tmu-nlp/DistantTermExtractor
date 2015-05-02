@@ -94,13 +94,15 @@ class DistantExtractor():
         3. 関連項目が以降は無視
         """
         def clean(wf, rf):
-            for line in wf:
+            for line in rf:
                 if line.strip() == '':
                     continue
                 if line.startswith('関連項目'):
                     return
                 spl = line.strip().replace('。', '。\n').split('\n')
                 for l in spl:
+                    if l == '':
+                        continue
                     wf.write('%s\n' % l)
             return
 
