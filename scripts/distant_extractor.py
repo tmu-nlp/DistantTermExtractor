@@ -304,7 +304,7 @@ class DistantExtractor():
                 else:
                     buffer_sent.append(line.strip())
 
-        self._logger.info('add feature')
+        self._logger.info('labeling')
         self._file_io.rewrite_files(
             self._temp_dir,
             self._labeled_dir,
