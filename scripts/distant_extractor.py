@@ -463,7 +463,7 @@ class DistantExtractor():
         self._file_io.rewrite_file(
             '%s/diff.txt' % self._output,
             '%s/tp.txt' % self._output,
-            spl_diff
+            get_tp
         )
 
         def get_word_from_diff(fw, fr):
@@ -486,7 +486,7 @@ class DistantExtractor():
                     word.append(line.strip().split()[0])
             
             for item in sorted(set(l), key=lambda x:x[1]):
-                w.write('%s %s %s' % (item[0].replace("///",""), item[1], "\t"+item[0]))
+                w.write('%s %s %s\n' % (item[0].replace("///",""), item[1], "\t"+item[0]))
             w.close()
             r.close()
 
