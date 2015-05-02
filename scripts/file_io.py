@@ -25,9 +25,6 @@ class FileIO():
     def write_string(self, string, dir_rpath, file_name):
         path = self._get_path(dir_rpath)
 
-        # ファイル名に含まれるスラッシュを置換
-        file_name = file_name.replace('/', '\/')
-
         if not os.path.isdir(path):
             self._logger.info('make dir : %s' % path)
             os.makedirs(path)

@@ -23,7 +23,7 @@ class DistantExtractor():
 
         # init dir name
         self._seed_dir = 'seeds'
-        self._unlabeled_dir = 'unlabeld_corpora'
+        self._unlabeled_dir = 'unlabeled_corpora'
         self._cleaned_dir = 'cleaned_corpora'
 
     def extract_seed(self):
@@ -35,6 +35,8 @@ class DistantExtractor():
         for cat in self._categories:
             new_seeds, new_cats = self._wiki_extractor.get_subcategories_titles(cat)  # noqa
             self._logger.info('%d seeds from category %s' % (len(new_seeds), cat))  # noqa
+            if '/' in new_seeds:
+                new_seeds = new_seeds.replace('/', ':')
             self._seeds += new_seeds
 
             # add subcategories to extract
