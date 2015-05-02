@@ -17,12 +17,13 @@ Option:
      -d <depth>, --depth <depth>
         カテゴリの深さ [default: 1]
      -o <output_dir>, --output <output_dir>
-        取得したシードや記事本文，抽出した用語を出力するディレクトリ [default: ../data]
+        取得したシードや記事本文，抽出した用語を出力するディレクトリ [default: root/data]
      -l <log_file>, --log <log_file> [dafault:]
         ログ出力先ファイル
 """
 
 from docopt import docopt
+import os
 import mylogger
 from file_io import FileIO
 from distant_extractor import DistantExtractor
@@ -101,6 +102,11 @@ def get_args(dopt):
             args[key] = x.encode('utf-8')
         else:
             args[key] = x
+
+    if args['--ouput'] == 'root/data':
+        # repository root dir
+        args['--output'] = '%s/data' % '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[:-1])  # noqa
+    
     return args
 
 
