@@ -21,8 +21,10 @@ class DistantExtractor():
         self._seeds = list()
         self._categories = [self._root_cat]
 
+        # init dir name
         self._seed_dir = 'seeds'
         self._unlabeled_dir = 'unlabeld_corpora'
+        self._cleaned_dir = 'cleaned_corpora'
 
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
@@ -54,6 +56,31 @@ class DistantExtractor():
             self._file_io.write_string(
                 content, self._unlabeled_dir, '%s.txt' % title)
 
+    def cleaning(self):
+        u"""
+        ラベルなしコーパスのクリーニングをする.
+
+        1. 空行を削除
+        2. 読点毎に行分割
+        3. 関連項目が以降は無視
+        """
+        def clean(wf, rf):
+            for line in wf:
+                if line.strip() == '':
+                    continue
+                if line.startswith('関連項目'):
+                    return
+                spl = line.strip().replace('。', '。\n').split('\n')
+                for l in spl:
+                    wf.write('%s\n' % l)
+            return
+
+        self._file_io.rewrite_files(
+            self._unlabeled_dir,
+            self._cleaned_dir,
+            clean
+        )
+
     def pre_process(self):
         # 文分割
         # mecab
@@ -68,8 +95,6 @@ class DistantExtractor():
     def add_feature(self):
         pass
     
-    def cleaning(self):
-        pass
 
     def decoding(self):
         pass
