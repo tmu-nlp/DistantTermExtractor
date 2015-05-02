@@ -398,7 +398,7 @@ class DistantExtractor():
         
         self._logger.info('decode diff')
         self._file_io.rewrite_file(
-            self._decodefile,
+            self._file_io.basename(self._decodefile),
             '%s/diff.txt' % self._output,
             diff
         )

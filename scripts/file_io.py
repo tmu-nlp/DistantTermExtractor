@@ -18,6 +18,9 @@ class FileIO():
 
     def remove_dir(self, dir_rpath):
         shutil.rmtree(self._get_path(dir_rpath))
+    
+    def basename(self, path):
+        return os.path.basename(path)
 
     def cat(self, indir, filename):
         i = self._get_path(indir)
