@@ -42,24 +42,20 @@ class FileIO():
         rpath = self._get_path(read_rpath)
         wpath = self._get_path(write_rpath)
 
-        self._logger.info('cleaning %s to %s' % (rpath, wpath))
+        self._logger.info('rewrite %s to %s' % (rpath, wpath))
 
         if not os.path.isdir(wpath):
             self._logger.info('make dir : %s' % wpath)
             os.makedirs(wpath)
-        for f in self._pyls('%s/*' % rpath, False, False):
-            wf = open('%s/%s' % (wpath, f), 'w')
-            rf = open('%s/%s' % (rpath, f))
-
-            self._logger.info('cleaning %s/%s to %s/%s' % (rpath, f, wpath, f))
+        for f in self.pyls('%s/*' % rpath, False, False):
+            wf = '%s/%s' % (wpath, f)
+            rf = '%s/%s' % (rpath, f)
             rewrite_func(wf, rf)
-            wf.close()
-            rf.close()
 
     def _get_path(self, rpath):
         return '%s/%s' % (self._root_dir, rpath)
 
-    def _pyls(self, query, enable_dir=True, enable_path=False):
+    def pyls(self, query, enable_dir=True, enable_path=False):
         u"""
         lsの結果を返すジェネレータ.
     
