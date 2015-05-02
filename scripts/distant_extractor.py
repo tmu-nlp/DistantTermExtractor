@@ -66,8 +66,11 @@ class DistantExtractor():
         self._temp_dir = 'temp'
         self._templatefile = '%s/templates/template' % root_dir
         self._trainfile = '%s/train.txt' % output_dir
+        self._decodefile = '%s/decode.txt' % output_dir
         self._modelfile = '%s/model' % output_dir
-        self._output_dir = output_dir
+        self._all_labeledfile = '%s/all_labeled.txt' % output_dir
+
+
     def extract_seed(self):
         self._logger.info('\n------extract seed------')
         self._logger.info('depth 0')
@@ -346,8 +349,11 @@ class DistantExtractor():
             cmd = 'crf_learn -t -p4 -f 3 -c 5.0 %s %s %s >> %s' % (self._templatefile, self._trainfile, self._modelfile, lf)
         subprocess.call(cmd, shell=True)
 
-    def decoding(self):
-        pass
+    def decode(self):
+        self._logger.info('decode by crf')
+        self._file_io.cat(self._labeled_dir, self._all_labeledfile)
+        cmd = 'crf_test -m %s > %s' % (self._modelfile, self._decodefile)
+        subprocess.call(cmd, shell=True)
 
     def fp_extract(self):
         pass
