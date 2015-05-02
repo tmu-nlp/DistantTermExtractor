@@ -4,6 +4,7 @@
 
 import os
 import glob
+import shutil
 
 class FileIO():
     def __init__(self, root_dir_path, logger):
@@ -12,6 +13,9 @@ class FileIO():
         if not os.path.isdir(self._root_dir):
             self._logger.info('make dir : %s' % self._root_dir)
             os.makedirs(self._root_dir)
+
+    def remove_dir(self, dir_rpath):
+        shutil.rmtree(self._get_path(dir_rpath))
 
     def write_list(self, l, dir_rpath, file_name):
         path = self._get_path(dir_rpath)
@@ -47,6 +51,7 @@ class FileIO():
         if not os.path.isdir(wpath):
             self._logger.info('make dir : %s' % wpath)
             os.makedirs(wpath)
+
         for f in self.pyls('%s/*' % rpath, False, False):
             wf = '%s/%s' % (wpath, f)
             rf = '%s/%s' % (rpath, f)
