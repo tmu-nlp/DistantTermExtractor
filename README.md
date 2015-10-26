@@ -43,6 +43,10 @@ docoptはpipで，CRF++は[サイト][CRF++]から，unidic-mecabも[サイト][
 unidic-mecabはbinバージョンをダウンロードしてください．  
 そして，展開した中身から`dicrc`**以外**をリポジトリのmy_unidicにコピーしてください．  
 
+## Licence
+[MIT][]
+
+[MIT]: https://github.com/tmu-nlp/DistantTermExtractor/blob/master/LICENSE.md
 [CRF++]: http://taku910.github.io/crfpp/
 [unidic]: http://sourceforge.jp/projects/unidic/
 
